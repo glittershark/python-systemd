@@ -2,7 +2,7 @@ import traceback as _traceback
 import os as _os
 from syslog import (LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
                     LOG_WARNING, LOG_NOTICE, LOG_INFO, LOG_DEBUG)
-from ._journal import sendv, stream_fd
+from ._journal import sendv, stream_fd, journal_print
 
 def _make_line(field, value):
     if isinstance(value, bytes):

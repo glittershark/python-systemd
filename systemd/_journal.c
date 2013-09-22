@@ -79,6 +79,33 @@ out1:
     return ret;
 }
 
+PyDoc_STRVAR(journal_journal_print__doc__,
+             "journal_print(priority, string) -> None\n\n"
+             "Print a string with priority to the system log.\n"
+             "Priority must be one of (LOG_EMERG, LOG_ALERT, LOG_CRIT, "
+             "LOG_ERR, LOG_WARNING, LOG_NOTICE, LOG_INFO, LOG_DEBUG)"
+             );
+
+static PyObject*
+journal_print(PyObject *self, PyObject *args) {
+    int err;
+    int priority;
+    const char *str;
+    if(!PyArg_ParseTuple(args, "is:journal_print",
+                &priority, &str))
+        return NULL;
+
+    err = sd_journal_print(priority, str);
+    if (err != 0) {
+        PyErr_Format(PyExc_RuntimeError, "Error from sd_journal_print: %d",
+                err);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 PyDoc_STRVAR(journal_stream_fd__doc__,
              "stream_fd(identifier, priority, level_prefix) -> fd\n\n"
              "Open a stream to journal by calling sd_journal_stream_fd(3)."
@@ -102,8 +129,9 @@ journal_stream_fd(PyObject *self, PyObject *args) {
 
 static PyMethodDef methods[] = {
     {"sendv",  journal_sendv, METH_VARARGS, journal_sendv__doc__},
-    {"stream_fd", journal_stream_fd, METH_VARARGS,
-     journal_stream_fd__doc__},
+    {"stream_fd", journal_stream_fd, METH_VARARGS, journal_stream_fd__doc__},
+    {"journal_print", journal_print, METH_VARARGS,
+        journal_journal_print__doc__},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
